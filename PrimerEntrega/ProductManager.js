@@ -3,11 +3,12 @@
 class ProductManager {
 
     constructor (){
+        //Constructor con lista de productos vacia
             this.products=[]
     }
 
     addProduct (title, description, price, thumbnail, code, stock){
-        
+        //Agregar producto - Creando el mismo con las propiedades seleccionadas
         let newProduct={
             title,
             description,
@@ -40,10 +41,13 @@ class ProductManager {
     }
 
     getProducts(){
+        //metodo que retorna la lista entera de productos
         return this.products
     }
 
     getProductById(id){
+
+        //metodo que retorna el producto seleccionado  usando su ID
         let isPresent=false;
         let location=-1;
         let i=-1;
@@ -57,7 +61,7 @@ class ProductManager {
             
         });
         if (isPresent) {return this.products[location]}
-        else{return ("No se encontro el producto referente al id "+id)}
+        else{return ("Not Found")}
         
 
     }
@@ -65,12 +69,12 @@ class ProductManager {
 
 }
 
-let testProductos = new ProductManager();
 
+//Codigo para testeo de la clase y sus propiedades
+let testProductos = new ProductManager();
 
 testProductos.getProducts()
 testProductos.addProduct("producto prueba","Esto es un prod prueba", 20, "sin imagen", "abc123", 23)
-
 console.log(testProductos.getProducts())
 console.log(testProductos.addProduct("producto prueba","Esto es un prod prueba", 20, "sin imagen", "abc123", 23))
 console.log(testProductos.getProductById(1))
