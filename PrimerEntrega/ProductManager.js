@@ -1,10 +1,28 @@
 
+//Inicializando el File System
+var fs = require('fs');
+
 
 class ProductManager {
 
-    constructor (){
+    //constructor de la clase ProductManager
+    constructor (path){
+        //Si el path es vacio se considera invalid
+        if (path.length==0) return console.log("Error - invalid path")
         //Constructor con lista de productos vacia
-            this.products=[]
+        this.products=[];
+        this.path=path;
+        //Si el archivo ya existe, leo la info asumiendo que ya hay un array de objetos
+        if(fs.existsSync(path)){
+            this.products=JSON.parse(fs.readFileSync(this.path,'utf-8'))
+        }
+        else{
+            //Si el archivo aun no existe, lo creo
+            fs.openSync('./test.txt', 'w',0o666 ,function (err, file) {
+                if (err) throw err;
+            }); 
+        }
+       
     }
 
     addProduct (title, description, price, thumbnail, code, stock){
@@ -33,6 +51,8 @@ class ProductManager {
             }
     
             this.products.push(newProduct);
+            //Guardo el nuevo array de objetos en el archivo JSON 
+            fs.writeFileSync(this.path, JSON.stringify(this.products), function (err) {if (err) throw err;});
         }
         else{
             return "El codgio ya existe. Debe ingresar otro codigo"
@@ -61,8 +81,56 @@ class ProductManager {
             
         });
         if (isPresent) {return this.products[location]}
-        else{return ("Not Found")}
+        return ("Not Found")
         
+
+    }
+
+    updateProduct(id,tempProd){
+        //Actualizo el objeto Producto con toda la info nueva y actualizo el archivo tambien.
+        let isPresent=false;
+        let location=-1;
+        let i=-1;
+        this.products.forEach(element => { 
+            i++;
+            if (element.id == id) 
+            {
+                isPresent=true;
+                location=i;
+            }
+            
+        });
+        if (isPresent) {
+            this.products[location]=tempProd;
+            fs.unlinkSync(this.path, function (err) {if (err) throw err;});
+            fs.openSync('./test.txt', 'w',0o666 ,function (err, file) {if (err) throw err}); 
+            fs.writeFileSync(this.path, JSON.stringify(this.products), function (err) {if (err) throw err;});
+            return "success"
+        }
+        return "Error - ID not found"
+    }
+
+    deleteProduct(id){
+        //Metodo para borrar un producto dado su ID - Tambien se elimina del archivo
+        let i=-1;
+        let logrado=false;
+        this.products.forEach(element => { 
+            i++;
+            if (element.id == id) 
+            {
+                this.products.splice(i,1)
+                logrado=true
+            }
+        });
+        if (logrado){
+            fs.unlinkSync(this.path, function (err) {if (err) throw err;});
+            fs.openSync('./test.txt', 'w',0o666 ,function (err, file) {
+                if (err) throw err;
+            }); 
+            fs.writeFileSync(this.path, JSON.stringify(this.products), function (err) {if (err) throw err;});
+            return "Exitoooooooooooo"
+        }
+        return "Id not found - Product not deleted"
 
     }
 
@@ -71,11 +139,14 @@ class ProductManager {
 
 
 //Codigo para testeo de la clase y sus propiedades
-let testProductos = new ProductManager();
-
+console.log("Creo mi instancia testPRoductos")
+let testProductos = new ProductManager("C:/gabriel/TEST.txt");
 testProductos.getProducts()
-testProductos.addProduct("producto prueba","Esto es un prod prueba", 20, "sin imagen", "abc123", 23)
+testProductos.addProduct("producto prueba","Esto es un prod prueba", 20, "sin imagen", "codigo1", 23)
+testProductos.addProduct("producto prueba 2","Esto es un prod prueba 2", 21, "sin imagen", "codigo2", 23)
 console.log(testProductos.getProducts())
-console.log(testProductos.addProduct("producto prueba","Esto es un prod prueba", 20, "sin imagen", "abc123", 23))
+console.log(testProductos.addProduct("producto prueba","Esto es un prod prueba", 20, "sin imagen", "codigo1", 23))
 console.log(testProductos.getProductById(1))
-console.log(testProductos.getProductById(2))
+console.log(testProductos.getProductById(3))
+console.log(testProductos.deleteProduct(1))
+
