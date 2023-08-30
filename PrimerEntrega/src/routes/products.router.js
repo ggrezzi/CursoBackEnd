@@ -115,10 +115,31 @@ function deleteProduct(id){
 
 
 router.get('/',(req,res)=>{
+    
+    let filtros=Object.entries(req.query)
     let products=getProducts()
-    res.setHeader('Content-Type','application/json');
-    res.status(200).json({data:products});
-});
+    if (filtros.length>0){
+        if (filtros[0][0]=="limit") {
+            let limit=parseInt(filtros[0][1])
+            if (limit>products.length){res.json(products)}
+            else{
+                let resultados=[]
+                for (let index = 0; index < limit; index++) {
+                    resultados.push(products[index])
+                }
+                res.setHeader('Content-Type','application/json');
+                res.status(200).json({data:resultados});
+            }
+        }
+        else{res.json("Invalid Parameter")} 
+    }
+    else{
+        res.setHeader('Content-Type','application/json');
+        res.status(200).json({data:products});
+    }
+
+})
+
 
 router.get('/:pid',(req,res)=>{
     let id=parseInt(req.params.pid)
